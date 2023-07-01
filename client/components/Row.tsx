@@ -5,7 +5,7 @@ type RowProps = {
 }
 export default function Row({ children }: RowProps ) {
   return (
-    <div className="flex justify-center gap-2 py-1">
+    <div className="grid grid-cols-4 justify-center gap-2 py-1 w-44">
       { children }
     </div>
   )
