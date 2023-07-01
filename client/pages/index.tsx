@@ -3,18 +3,16 @@ import axios from "axios";
 import Row from '../components/Row'
 import Button from '../components/Button'
 
-const OPERATORS = {
+const URL = "http://localhost:8080/calculate";
+
+const OPERATIONS = {
   SUM: 'SUM',
   SUBTRACT: 'SUBTRACT',
   MULTIPLY: 'MULTIPLY',
   DIVIDE: 'DIVIDE'
 } as const
 
-type OperatorType = typeof OPERATORS[keyof typeof OPERATORS];
-
-type HandleInputProps = {
-  value: OperatorType | number
-}
+type OperatorType = typeof OPERATIONS[keyof typeof OPERATIONS];
 
 const returnOposite = (value: string) => {
   const parsed = parseInt(value)
@@ -24,42 +22,54 @@ const returnOposite = (value: string) => {
 }
 
 export default function Home() {
+  const [display, setDisplay] = useState("0");
   const [firstNumber, setFirstNumber] = useState("");
   const [secondNumber, setSecondNumber] = useState("");
+  const [isNewNumber, setNewNumber] = useState(true);
   const [operator, setOperator] = useState<OperatorType | null>(null);
-  const apiUrl = "http://localhost:8080/calculate";
+
+  useEffect(() => {
+    if (operator === null) {
+      setFirstNumber(display);
+    } else if(!isNewNumber) {
+      setSecondNumber(display);
+    }
+  }, [operator, isNewNumber, display])
 
   const handleNumberClick = (number: number) => {
-    if (operator === null) {
-      setFirstNumber((prevFirstNumber) => prevFirstNumber + number);
+    if (display === "0" || isNewNumber) {
+      setDisplay( number.toString() )
+      setNewNumber(false)
     } else {
-      setSecondNumber((prevSecondNumber) => prevSecondNumber + number);
+      setDisplay( prev => prev + number)
     }
   };
 
   const handleOperatorClick = (op: OperatorType) => {
-    if (firstNumber !== "" && secondNumber === "") {
-      setOperator(op);
+    if(!isNewNumber) {
+      calculate();
     }
+
+    setOperator(op)
+    setNewNumber(true)
   };
 
   const handleDotClick = () => {
-    if (operator === null && !firstNumber.includes(".")) {
-      setFirstNumber((prevFirstNumber) => prevFirstNumber + ".");
-    } else if (operator !== null && !secondNumber.includes(".")) {
-      setSecondNumber((prevSecondNumber) => prevSecondNumber + ".");
+    if (!display.includes(".")) {
+      setDisplay( prev => prev + ".");
     }
   };
 
   const handleToggleSignClick = () => {
-    if (firstNumber !== "" && secondNumber === "") {
-      setFirstNumber( prev => returnOposite(prev) )
-    } else {
-      setSecondNumber( prev => returnOposite(prev) )
-    }
+    setDisplay( prev => returnOposite(prev) )
   };
 
-  const handleEqualClick = async () => {
+  const handleEqualClick = () => {
+    setNewNumber(true)
+    calculate()
+  }
+
+  const calculate = async () => {
     if (firstNumber !== "" && secondNumber !== "" && operator !== null) {
       try {
         const requestBody = {
@@ -68,28 +78,33 @@ export default function Home() {
           operator: operator,
         };
 
-        const response = await axios.post(apiUrl, requestBody);
-        setSecondNumber("")
-        setFirstNumber(response.data.result.toString());
+        const response = await axios.post(URL, requestBody);
+        if (response.data.error) {
+          setDisplay(response.data.error);
+        } else {
+          setDisplay(response.data.result.toString());
+          setFirstNumber(response.data.result.toString());
+        }
       } catch (error) {
-        setSecondNumber("")
-        setFirstNumber("Error");
+        reset()
+        setDisplay("Error, no connection!");
       }
     }
   };
   
   const handleBackspace = () => {
-    if (operator === null) {
-      setFirstNumber((prevFirstNumber) => prevFirstNumber.slice(0, -1));
+    if(display.length === 1) {
+      setDisplay("0")
     } else {
-      setSecondNumber((prevSecondNumber) => prevSecondNumber.slice(0, -1));
+      setDisplay( prev => prev.slice(0, -1));
     }
   };
 
-  const clearDisplay = () => {
-    setFirstNumber("");
-    setSecondNumber("");
-    setOperator(null);
+  const reset = () => {
+    setFirstNumber("")
+    setSecondNumber("")
+    setOperator(null)
+    setDisplay("0")
   };
 
   return (
@@ -99,38 +114,38 @@ export default function Home() {
           <input
             type='text'
             className='col-span-4 h-10 p-2 text-right font-mono bg-green-700 text-slate-800 font-bold border rounded'
-            value={secondNumber || firstNumber}
+            value={display}
             readOnly
           />
         </Row>
         <Row>
-          <Button className="col-span-2" title='C' onClick={() => clearDisplay()}/>
-          <Button title='<X' onClick={() => handleBackspace()}/>
-          <Button title='/' onClick={() => handleOperatorClick(OPERATORS.DIVIDE)}/>
+          <Button className="col-span-2" title='C' onClick={() => reset()}/>
+          <Button title='&#9003;' onClick={() => handleBackspace()}/>
+          <Button title='/' isSelected={operator === OPERATIONS.DIVIDE} onClick={() => handleOperatorClick(OPERATIONS.DIVIDE)}/>
         </Row>
         <Row>
           <Button className="bg-slate-900" title='7' onClick={() => handleNumberClick(7)}/>
           <Button className="bg-slate-900" title='8' onClick={() => handleNumberClick(8)}/>
           <Button className="bg-slate-900" title='9' onClick={() => handleNumberClick(9)}/>
-          <Button title='*' onClick={() => handleOperatorClick(OPERATORS.MULTIPLY)}/>
+          <Button title='*' isSelected={operator === OPERATIONS.MULTIPLY} onClick={() => handleOperatorClick(OPERATIONS.MULTIPLY)}/>
         </Row>
         <Row>
           <Button className="bg-slate-900" title='4' onClick={() => handleNumberClick(4)}/>
           <Button className="bg-slate-900" title='5' onClick={() => handleNumberClick(5)}/>
           <Button className="bg-slate-900" title='6' onClick={() => handleNumberClick(6)}/>
-          <Button title='-' onClick={() => handleOperatorClick(OPERATORS.SUBTRACT)}/>
+          <Button title='-' isSelected={operator === OPERATIONS.SUBTRACT} onClick={() => handleOperatorClick(OPERATIONS.SUBTRACT)}/>
         </Row>
         <Row>
           <Button className="bg-slate-900" title='1' onClick={() => handleNumberClick(1)}/>
           <Button className="bg-slate-900" title='2' onClick={() => handleNumberClick(2)}/>
           <Button className="bg-slate-900" title='3' onClick={() => handleNumberClick(3)}/>
-          <Button title='+' onClick={() => handleOperatorClick(OPERATORS.SUM)}/>
+          <Button title='+' isSelected={operator === OPERATIONS.SUM} onClick={() => handleOperatorClick(OPERATIONS.SUM)}/>
         </Row>
         <Row>
           <Button title='+/-' onClick={() => handleToggleSignClick()}/>
-          <Button title='.' onClick={() => handleDotClick()}/>
           <Button className="bg-slate-900" title='0' onClick={() => handleNumberClick(0)}/>
-          <Button className="col-span-2" title='=' onClick={() => handleEqualClick()}/>
+          <Button title='.' onClick={() => handleDotClick()}/>
+          <Button title='=' onClick={() => handleEqualClick()}/>
         </Row>
       </div>
     </main>
