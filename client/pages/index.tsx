@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Row from '../components/Row'
 import Button from '../components/Button'
 
@@ -13,6 +13,10 @@ const OPERATIONS = {
 } as const
 
 type OperatorType = typeof OPERATIONS[keyof typeof OPERATIONS];
+
+type ErrorResponse = {
+  error: string;
+}
 
 const returnOposite = (value: string) => {
   const parsed = parseInt(value)
@@ -69,29 +73,6 @@ export default function Home() {
     calculate()
   }
 
-  const calculate = async () => {
-    if (firstNumber !== "" && secondNumber !== "" && operator !== null) {
-      try {
-        const requestBody = {
-          number1: parseFloat(firstNumber),
-          number2: parseFloat(secondNumber),
-          operator: operator,
-        };
-
-        const response = await axios.post(URL, requestBody);
-        if (response.data.error) {
-          setDisplay(response.data.error);
-        } else {
-          setDisplay(response.data.result.toString());
-          setFirstNumber(response.data.result.toString());
-        }
-      } catch (error) {
-        reset()
-        setDisplay("Error, no connection!");
-      }
-    }
-  };
-  
   const handleBackspace = () => {
     if(display.length === 1) {
       setDisplay("0")
@@ -107,47 +88,72 @@ export default function Home() {
     setDisplay("0")
   };
 
+  const calculate = async () => {
+    if (firstNumber !== "" && secondNumber !== "" && operator !== null) {
+      try {
+        const requestBody = {
+          number1: parseFloat(firstNumber),
+          number2: parseFloat(secondNumber),
+          operator: operator,
+        };
+
+        const response = await axios.post(URL, requestBody);
+
+        setDisplay(response.data.result.toString());
+        setFirstNumber(response.data.result.toString());
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          const err = error as AxiosError<ErrorResponse>;
+          reset();
+          setDisplay(err.response?.data.error || "Unknown error occurred");
+        }
+      }
+    }
+  };
+
+  const isSelected = (op: OperatorType) => operator === op
+
   return (
-    <main className='w-full h-screen flex justify-center items-center'>
+    <div className='w-full h-screen flex justify-center items-center'>
       <div className='border rounded p-4'>
-        <Row>
+        <div dir="rtl" className='w-44 mb-1'>
           <input
             type='text'
-            className='col-span-4 h-10 p-2 text-right font-mono bg-green-700 text-slate-800 font-bold border rounded'
+            className='w-full h-10 p-2 text-right text-xl font-mono bg-green-700 text-slate-800 font-bold border rounded'
             value={display}
             readOnly
           />
-        </Row>
+        </div>
         <Row>
-          <Button className="col-span-2" title='C' onClick={() => reset()}/>
-          <Button title='&#9003;' onClick={() => handleBackspace()}/>
-          <Button title='/' isSelected={operator === OPERATIONS.DIVIDE} onClick={() => handleOperatorClick(OPERATIONS.DIVIDE)}/>
+          <Button className="col-span-2" title='C' onClick={reset}/>
+          <Button title='&#9003;' onClick={handleBackspace}/>
+          <Button title='/' isSelected={isSelected(OPERATIONS.DIVIDE)} onClick={() => handleOperatorClick(OPERATIONS.DIVIDE)}/>
         </Row>
         <Row>
           <Button className="bg-slate-900" title='7' onClick={() => handleNumberClick(7)}/>
           <Button className="bg-slate-900" title='8' onClick={() => handleNumberClick(8)}/>
           <Button className="bg-slate-900" title='9' onClick={() => handleNumberClick(9)}/>
-          <Button title='*' isSelected={operator === OPERATIONS.MULTIPLY} onClick={() => handleOperatorClick(OPERATIONS.MULTIPLY)}/>
+          <Button title='*' isSelected={isSelected(OPERATIONS.MULTIPLY)} onClick={() => handleOperatorClick(OPERATIONS.MULTIPLY)}/>
         </Row>
         <Row>
           <Button className="bg-slate-900" title='4' onClick={() => handleNumberClick(4)}/>
           <Button className="bg-slate-900" title='5' onClick={() => handleNumberClick(5)}/>
           <Button className="bg-slate-900" title='6' onClick={() => handleNumberClick(6)}/>
-          <Button title='-' isSelected={operator === OPERATIONS.SUBTRACT} onClick={() => handleOperatorClick(OPERATIONS.SUBTRACT)}/>
+          <Button title='-' isSelected={isSelected(OPERATIONS.SUBTRACT)} onClick={() => handleOperatorClick(OPERATIONS.SUBTRACT)}/>
         </Row>
         <Row>
           <Button className="bg-slate-900" title='1' onClick={() => handleNumberClick(1)}/>
           <Button className="bg-slate-900" title='2' onClick={() => handleNumberClick(2)}/>
           <Button className="bg-slate-900" title='3' onClick={() => handleNumberClick(3)}/>
-          <Button title='+' isSelected={operator === OPERATIONS.SUM} onClick={() => handleOperatorClick(OPERATIONS.SUM)}/>
+          <Button title='+' isSelected={isSelected(OPERATIONS.SUM)} onClick={() => handleOperatorClick(OPERATIONS.SUM)}/>
         </Row>
         <Row>
-          <Button title='+/-' onClick={() => handleToggleSignClick()}/>
+          <Button title='+/-' onClick={handleToggleSignClick}/>
           <Button className="bg-slate-900" title='0' onClick={() => handleNumberClick(0)}/>
-          <Button title='.' onClick={() => handleDotClick()}/>
-          <Button title='=' onClick={() => handleEqualClick()}/>
+          <Button title='.' onClick={handleDotClick}/>
+          <Button title='=' onClick={handleEqualClick}/>
         </Row>
       </div>
-    </main>
+    </div>
   )
 }
