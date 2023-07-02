@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, FocusEvent } from 'react'
 import axios, { AxiosError } from "axios";
 import Row from '../components/Row'
 import Button from '../components/Button'
@@ -32,6 +32,18 @@ export default function Home() {
   const [isNewNumber, setNewNumber] = useState(true);
   const [operator, setOperator] = useState<OperatorType | null>(null);
 
+  const inputElement = useRef<HTMLInputElement | null>(null);
+
+  const focusInput = () => {
+    if (inputElement.current) {
+      inputElement.current.focus();
+    }
+  }
+
+  useEffect(() => {
+    focusInput()
+  }, []);
+
   useEffect(() => {
     if (operator === null) {
       setFirstNumber(display);
@@ -40,6 +52,33 @@ export default function Home() {
     }
   }, [operator, isNewNumber, display])
 
+  const keyDownHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const key = event.key;
+
+    if (!isNaN(parseInt(key))) {
+      handleNumberClick(parseInt(key));
+    }
+    if (key === '.') {
+      handleDotClick();
+    } else if (key === '+') {
+      handleOperatorClick(OPERATIONS.SUM);
+    } else if (key === '-') {
+      handleOperatorClick(OPERATIONS.SUBTRACT);
+    } else if (key === '*') {
+      handleOperatorClick(OPERATIONS.MULTIPLY);
+    } else if (key === '/') {
+      handleOperatorClick(OPERATIONS.DIVIDE);
+    } else if (key === '=') {
+      handleEqualClick();
+    } else if (key === 'Enter') {
+      handleEqualClick();
+    } else if (key === 'Backspace') {
+      handleBackspace();
+    } else if (key === 'Delete') {
+      reset();
+    }
+  };
+
   const handleNumberClick = (number: number) => {
     if (display === "0" || isNewNumber) {
       setDisplay( number.toString() )
@@ -47,6 +86,7 @@ export default function Home() {
     } else {
       setDisplay( prev => prev + number)
     }
+    focusInput()
   };
 
   const handleOperatorClick = (op: OperatorType) => {
@@ -56,21 +96,25 @@ export default function Home() {
 
     setOperator(op)
     setNewNumber(true)
+    focusInput()
   };
 
   const handleDotClick = () => {
     if (!display.includes(".")) {
       setDisplay( prev => prev + ".");
     }
+    focusInput()
   };
 
   const handleToggleSignClick = () => {
-    setDisplay( prev => returnOposite(prev) )
+    setDisplay( prev => returnOposite(prev))
+    focusInput()
   };
 
   const handleEqualClick = () => {
     setNewNumber(true)
     calculate()
+    focusInput()
   }
 
   const handleBackspace = () => {
@@ -79,6 +123,7 @@ export default function Home() {
     } else {
       setDisplay( prev => prev.slice(0, -1));
     }
+    focusInput()
   };
 
   const reset = () => {
@@ -86,10 +131,12 @@ export default function Home() {
     setSecondNumber("")
     setOperator(null)
     setDisplay("0")
+    focusInput()
   };
 
   const calculate = async () => {
     if (firstNumber !== "" && secondNumber !== "" && operator !== null) {
+
       try {
         const requestBody = {
           number1: parseFloat(firstNumber),
@@ -113,15 +160,21 @@ export default function Home() {
 
   const isSelected = (op: OperatorType) => operator === op
 
+  const placeCursorEnd = (e: FocusEvent<HTMLInputElement, Element>) => {
+    e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length)
+  }
+
   return (
     <div className='w-full h-screen flex justify-center items-center'>
       <div className='border rounded p-4'>
-        <div dir="rtl" className='w-44 mb-1'>
+        <div className='w-44 mb-1'>
           <input
             type='text'
             className='w-full h-10 p-2 text-right text-xl font-mono bg-green-700 text-slate-800 font-bold border rounded'
             value={display}
-            readOnly
+            onKeyDown={keyDownHandler}
+            onFocus={(event) => placeCursorEnd(event)}
+            ref={inputElement}
           />
         </div>
         <Row>

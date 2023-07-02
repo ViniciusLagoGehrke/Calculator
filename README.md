@@ -17,13 +17,13 @@ Include buttons for:
 - [x] When the equal (=) button is pressed, the application should calculate and display the result
 
 ### 3. Error Handling
-- [ ] Handle basic input validation and error scenarios (e.g., division by zero, invalid input format)
-- [ ] Display appropriate error messages or notifications when necessary
+- [x] Handle basic input validation and error scenarios (e.g., division by zero, invalid input format)
+- [x] Display appropriate error messages or notifications when necessary
 
 ## Technical Requirements:
 - [ ] Use of our tech stack (Kotlin with Spring Boot Framework, Angular) would be nice
 - [x] but you can use any programming language or framework of your choice (e.g., JavaScript, Python, Java, C#, etc.).
 - [x] A server side backend would be nice but without is also ok
-- [ ] Employ best practices in software engineering, including modular and well-organised code
-- [ ] Utilise appropriate data structures and algorithms to perform the arithmetic operations
-- [ ] Focus on functionality rather than elaborate UI design or advanced features
+- [x] Employ best practices in software engineering, including modular and well-organised code
+- [x] Utilise appropriate data structures and algorithms to perform the arithmetic operations
+- [x] Focus on functionality rather than elaborate UI design or advanced features
