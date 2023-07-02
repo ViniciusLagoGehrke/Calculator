@@ -2,21 +2,10 @@ import { useState, useEffect, useRef, FocusEvent } from 'react'
 import axios, { AxiosError } from "axios";
 import Row from '../components/Row'
 import Button from '../components/Button'
+import { OPERATIONS, OperatorType, ErrorResponse } from '@/types';
 
-const URL = "http://localhost:8080/calculate";
-
-const OPERATIONS = {
-  SUM: 'SUM',
-  SUBTRACT: 'SUBTRACT',
-  MULTIPLY: 'MULTIPLY',
-  DIVIDE: 'DIVIDE'
-} as const
-
-type OperatorType = typeof OPERATIONS[keyof typeof OPERATIONS];
-
-type ErrorResponse = {
-  error: string;
-}
+// const URL = "http://localhost:8080/calculate"; // Node.js Server
+const URL = "/api/calculate"; // Next.js API
 
 const returnOposite = (value: string) => {
   const parsed = parseInt(value)
