@@ -29,7 +29,7 @@ This is a basic calculator application that performs basic arithmetic operations
 - [x] Displays appropriate error messages or notifications when necessary
 
 ## Technical Requirements:
-- [ ] Use of Kotlin with Spring Boot Framework and Angular
+- [x] Use of Kotlin with Spring Boot Framework and Angular
 - [x] Use of other programming languages or framework (e.g., JavaScript, Python, Java, C#, etc.)
 - [x] Next.js API to calculate all operations
 - [x] An alternative server with Node.js and Express
@@ -45,117 +45,12 @@ This project uses many tools like:
 - [Tailwindcss](https://tailwindcss.com)
 - [Eslint](https://eslint.org)
 - [Prettier](https://prettier.io)
-- [Docker](https://www.docker.com/)
+- [NodeJS](https://nodejs.org/)
+- [ExpressJS](https://expressjs.com/)
 
 ## Getting Started
 
-For this project I used Node.js v18.15.0.
-Alternatively you can run a container with the project in development mode using [Docker](https://docs.docker.com/)
-
-### Install
-
-Clone this project
-
-```bash
-git clone https://github.com/ViniciusLagoGehrke/Calculator.git
-```
-
-Access the project directory.
-
-```bash
-cd calculator/client
-```
-
-#### Running on your machine
-
-Make sure you are using the same Node version.
-
-```bash
-node -v
-```
-
-Install dependencies. (I suggest using PNPM)
-
-```bash
-pnpm install
-```
-
-Serve with hot reload at <http://localhost:3000>.
-
-```bash
-pnpm run dev
-```
-
-#### Using Docker
-
-Build a image from the dockerfile
-
-```bash
-docker build -t next-image .
-```
-
-Check if the image was created (optional)
-
-```bash
-docker images
-```
-
-Create a container from the image
-
-```bash
-docker run -it --name next-calc -p 8000:8000 --mount type=bind,source=$(pwd),target=/srv/app next-image
-```
-
-Check if the container is running (optional)
-
-```bash
-docker ps
-```
-
-Access the command line inside the container
-
-```bash
-docker exec -it next-calc sh
-```
-
-Install the dependencies and run the app
-
-```bash
-yarn && yarn dev
-```
-
-Open your browser at *http://localhost:8000/*
-You can edit the app and it will update on the browser
-
-Whenever you want to stop the app just stop the container
-
-```bash
-docker stop next-calc
-```
-
-### Lint
-
-```bash
-pnpm run lint
-```
-
-### Typecheck
-
-```bash
-pnpm run typecheck
-```
-
-### Build
-
-```bash
-pnpm run build
-```
-
-### Test
-
-```bash
-pnpm run test
-```
+This project contains a client and a server. In order to install and run please read the README file inside each folder.
 
 ## Deployment
 
