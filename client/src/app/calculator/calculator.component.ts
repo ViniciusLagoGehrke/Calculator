@@ -5,20 +5,19 @@ import { OperatorType, ERROR_MESSAGE } from 'src/types';
 @Component({
   selector: 'app-calculator',
   templateUrl: './calculator.component.html',
-  styleUrls: ['./calculator.component.css']
+  styleUrls: ['./calculator.component.css'],
 })
-
 export class CalculatorComponent {
   constructor(private calculatorService: CalculatorService) {}
 
   title = 'calculator';
 
-  display: string = "0";
+  display: string = '0';
 
   isNewNumber = true;
 
-  firstNumber: string = "";
-  secondNumber: string = "";
+  firstNumber: string = '';
+  secondNumber: string = '';
   operator: OperatorType | null = null;
 
   @HostListener('window:keydown', ['$event'])
@@ -30,7 +29,8 @@ export class CalculatorComponent {
       this.handleNumberClick(parseInt(key));
     } else if (key === '.') {
       this.handleDotClick();
-    } else if (key === 'F9') { // +/- button
+    } else if (key === 'F9') {
+      // +/- button
       this.handleToggleSignClick();
     } else if (key === '+' || key === '-' || key === '*' || key === '/') {
       this.handleOperatorClick(key);
@@ -48,8 +48,8 @@ export class CalculatorComponent {
   updateNumbers(): void {
     if (this.operator === null) {
       this.firstNumber = this.display;
-    } else if(!this.isNewNumber) {
-      this.secondNumber= this.display;
+    } else if (!this.isNewNumber) {
+      this.secondNumber = this.display;
     }
   }
 
@@ -63,8 +63,8 @@ export class CalculatorComponent {
   }
 
   handleOperatorClick(operator: OperatorType): void {
-    this.updateNumbers()
-    if (this.firstNumber !== "") {
+    this.updateNumbers();
+    if (this.firstNumber !== '') {
       if (!this.isNewNumber) {
         this.calculate();
       }
@@ -80,14 +80,14 @@ export class CalculatorComponent {
   }
 
   handleToggleSignClick(): void {
-    const parsed = parseInt(this.display)
-    if (isNaN(parsed)) return
-  
-    this.display = (parsed * -1).toString()
-  };
+    const parsed = parseInt(this.display);
+    if (isNaN(parsed)) return;
+
+    this.display = (parsed * -1).toString();
+  }
 
   handleEqualClick(): void {
-    this.updateNumbers()
+    this.updateNumbers();
     this.calculate();
     this.isNewNumber = true;
   }
@@ -101,24 +101,32 @@ export class CalculatorComponent {
   }
 
   calculate(): void {
-    if (this.firstNumber !== '' && this.secondNumber !== '' && this.operator !== null) {
+    if (
+      this.firstNumber !== '' &&
+      this.secondNumber !== '' &&
+      this.operator !== null
+    ) {
       const number1 = parseFloat(this.firstNumber);
       const number2 = parseFloat(this.secondNumber);
-      
+
       if (isNaN(number1) || isNaN(number2)) {
         console.error(ERROR_MESSAGE.Invalid_Parameter);
         this.display = ERROR_MESSAGE.Invalid_Parameter;
         return;
       }
-      
-      const result = this.calculatorService.calculate(number1, number2, this.operator);
-      
+
+      const result = this.calculatorService.calculate(
+        number1,
+        number2,
+        this.operator
+      );
+
       if (isNaN(parseFloat(result.toString()))) {
-        this.firstNumber = ""
-        this.isNewNumber = true
-        this.operator = null
+        this.firstNumber = '';
+        this.isNewNumber = true;
+        this.operator = null;
       } else {
-        this.firstNumber = result.toString()
+        this.firstNumber = result.toString();
       }
 
       this.display = result.toString();
@@ -126,10 +134,10 @@ export class CalculatorComponent {
   }
 
   reset(): void {
-    this.display = '0'
-    this.firstNumber = ""
-    this.secondNumber = ""
-    this.isNewNumber = true
-    this.operator = null
-  };
+    this.display = '0';
+    this.firstNumber = '';
+    this.secondNumber = '';
+    this.isNewNumber = true;
+    this.operator = null;
+  }
 }
