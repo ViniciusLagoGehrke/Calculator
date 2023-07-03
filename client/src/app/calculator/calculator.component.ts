@@ -1,6 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { CalculatorService } from '../services/calculator.service';
-import { OperatorType, ERROR_MESSAGE } from 'src/types';
+import { OperatorType, ERROR_MESSAGE, SYMBOL_MAP, ErrorType } from 'src/types';
 
 @Component({
   selector: 'app-calculator',
@@ -33,7 +33,7 @@ export class CalculatorComponent {
       // +/- button
       this.handleToggleSignClick();
     } else if (key === '+' || key === '-' || key === '*' || key === '/') {
-      this.handleOperatorClick(key);
+      this.handleOperatorClick(SYMBOL_MAP[key]);
     } else if (key === 'Enter') {
       this.handleEqualClick();
     } else if (key === '=') {
@@ -108,6 +108,7 @@ export class CalculatorComponent {
     ) {
       const number1 = parseFloat(this.firstNumber);
       const number2 = parseFloat(this.secondNumber);
+      const operator = this.operator;
 
       if (isNaN(number1) || isNaN(number2)) {
         console.error(ERROR_MESSAGE.Invalid_Parameter);
@@ -115,21 +116,24 @@ export class CalculatorComponent {
         return;
       }
 
-      const result = this.calculatorService.calculate(
+      this.calculatorService.calculate(
         number1,
         number2,
-        this.operator
-      );
-
-      if (isNaN(parseFloat(result.toString()))) {
-        this.firstNumber = '';
-        this.isNewNumber = true;
-        this.operator = null;
-      } else {
-        this.firstNumber = result.toString();
-      }
-
-      this.display = result.toString();
+        operator
+      ).subscribe({
+        next: (response) => {
+          console.log(response)
+          this.display = response.result.toString()
+          this.firstNumber = response.result.toString()
+        },
+        error: ({ error }) => {
+          console.error(error.error)
+          this.display = error.error
+          this.firstNumber = ''
+          this.isNewNumber = true
+          this.operator = null
+        }
+      });
     }
   }
 

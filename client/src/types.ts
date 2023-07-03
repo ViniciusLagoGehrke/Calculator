@@ -1,9 +1,16 @@
 export const OPERATIONS = {
-  SUM: '+',
-  SUBTRACT: '-',
-  MULTIPLY: '*',
-  DIVIDE: '/',
+  SUM: 'SUM',
+  SUBTRACT: 'SUBTRACT',
+  MULTIPLY: 'MULTIPLY',
+  DIVIDE: 'DIVIDE'
 } as const;
+
+export const SYMBOL_MAP = {
+  "+": 'SUM',
+  "-": 'SUBTRACT',
+  "*": 'MULTIPLY',
+  "/": 'DIVIDE'
+} as const
 
 export type OperatorType = (typeof OPERATIONS)[keyof typeof OPERATIONS];
 
@@ -14,3 +21,7 @@ export const ERROR_MESSAGE = {
 } as const;
 
 export type ErrorType = (typeof ERROR_MESSAGE)[keyof typeof ERROR_MESSAGE];
+
+export type Response = {
+  result: number
+}
